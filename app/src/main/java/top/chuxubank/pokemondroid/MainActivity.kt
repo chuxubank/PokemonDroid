@@ -199,7 +199,7 @@ fun HomeScreen(
                     style = MaterialTheme.typography.bodyMedium
                 )
             } else {
-                if (state.species.isEmpty() && state.query.isNotBlank()) {
+                if (state.species.isEmpty() && state.query.isNotBlank() && state.hasSearched) {
                     Text(
                         text = "No species found. Try another search.",
                         style = MaterialTheme.typography.bodyMedium

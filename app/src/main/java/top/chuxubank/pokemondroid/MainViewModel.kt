@@ -27,7 +27,8 @@ class MainViewModel : ViewModel() {
                 totalCount = 0,
                 currentPage = 0,
                 selectedPokemon = null,
-                errorMessage = null
+                errorMessage = null,
+                hasSearched = false
             )
             return
         }
@@ -57,6 +58,7 @@ class MainViewModel : ViewModel() {
     }
 
     private fun searchPage(page: Int) {
+        uiState = uiState.copy(hasSearched = true)
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, errorMessage = null)
             try {
@@ -90,5 +92,6 @@ data class UiState(
     val currentPage: Int = 0,
     val pageSize: Int = 20,
     val selectedPokemon: Pokemon? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val hasSearched: Boolean = false
 )

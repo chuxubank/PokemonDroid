@@ -60,7 +60,7 @@ class MainViewModel : ViewModel() {
             } catch (exception: Exception) {
                 uiState = uiState.copy(
                     isLoading = false,
-                    errorMessage = "Failed to load Pokemon data. Please try again.",
+                    errorMessage = "Failed to load Pokémon data. Please try again.",
                     species = emptyList(),
                     totalCount = 0,
                     currentPage = 0

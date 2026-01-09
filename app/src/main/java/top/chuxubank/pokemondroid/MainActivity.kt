@@ -120,14 +120,14 @@ fun SplashScreen(onContinue: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Welcome to PokemonDroid",
+            text = "Welcome to PokémonDroid",
             style = MaterialTheme.typography.headlineMedium,
             color = Color.White,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Search Pokemon species and jump into details.",
+            text = "Search Pokémon species and jump into details.",
             style = MaterialTheme.typography.bodyLarge,
             color = Color(0xFFE1E1E1),
             textAlign = TextAlign.Center
@@ -160,7 +160,7 @@ fun HomeScreen(
                 .fillMaxSize()
         ) {
             Text(
-                text = "Pokemon Search",
+                text = "Pokémon Search",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -194,7 +194,7 @@ fun HomeScreen(
                         modifier = Modifier.size(72.dp)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Loading Pokemon...", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = "Loading Pokémon...", style = MaterialTheme.typography.bodyMedium)
                 }
             } else if (state.errorMessage != null) {
                 Text(
@@ -277,7 +277,7 @@ fun SpeciesCard(
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "Pokemon",
+                text = "Pokémon",
                 style = MaterialTheme.typography.labelLarge,
                 color = textColor
             )
@@ -318,7 +318,7 @@ fun DetailScreen(navController: NavController, pokemon: Pokemon?) {
 
             if (pokemon == null) {
                 Text(
-                    text = "No Pokemon selected.",
+                    text = "No Pokémon selected.",
                     style = MaterialTheme.typography.bodyLarge
                 )
                 return@Column

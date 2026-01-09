@@ -26,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -269,24 +270,29 @@ fun SpeciesHeader(species: PokemonSpecies) {
     val background = colorForPokemonColorName(species.colorName)
     val textColor = readableTextColor(background)
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(background)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+    Surface(
+        tonalElevation = 2.dp,
+        shadowElevation = 4.dp,
+        color = background
     ) {
-        Column {
-            Text(
-                text = species.name.replaceFirstChar { it.uppercase() },
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = textColor
-            )
-            Text(
-                text = "Capture rate: ${species.captureRate}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = textColor.copy(alpha = 0.9f)
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            Column {
+                Text(
+                    text = species.name.replaceFirstChar { it.uppercase() },
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+                Text(
+                    text = "Capture rate: ${species.captureRate}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = textColor.copy(alpha = 0.9f)
+                )
+            }
         }
     }
 }
@@ -309,7 +315,7 @@ fun PokemonRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = pokemon.name.replaceFirstChar { it.uppercase() },
+            text = pokemon.name,
             style = MaterialTheme.typography.bodyMedium,
             color = textColor,
             maxLines = 1,

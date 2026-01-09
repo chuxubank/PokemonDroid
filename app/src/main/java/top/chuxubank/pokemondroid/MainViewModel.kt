@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import top.chuxubank.pokemondroid.data.PokeApiClient
 import top.chuxubank.pokemondroid.model.Pokemon
@@ -13,16 +15,26 @@ import top.chuxubank.pokemondroid.model.PokemonSpecies
 class MainViewModel : ViewModel() {
     var uiState by mutableStateOf(UiState())
         private set
+    private var searchJob: Job? = null
 
     fun onQueryChange(value: String) {
         uiState = uiState.copy(query = value)
-    }
-
-    fun search() {
-        if (uiState.query.isBlank()) {
+        searchJob?.cancel()
+        if (value.isBlank()) {
+            uiState = uiState.copy(
+                isLoading = false,
+                species = emptyList(),
+                totalCount = 0,
+                currentPage = 0,
+                selectedPokemon = null,
+                errorMessage = null
+            )
             return
         }
-        searchPage(0)
+        searchJob = viewModelScope.launch {
+            delay(400)
+            searchPage(0)
+        }
     }
 
     fun loadNextPage() {

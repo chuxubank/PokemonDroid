@@ -91,7 +91,6 @@ fun PokeApp() {
             HomeScreen(
                 state = viewModel.uiState,
                 onQueryChange = viewModel::onQueryChange,
-                onSearch = viewModel::search,
                 onNextPage = viewModel::loadNextPage,
                 onPreviousPage = viewModel::loadPreviousPage,
                 onPokemonClick = { pokemon ->
@@ -143,7 +142,6 @@ fun SplashScreen(onContinue: () -> Unit) {
 fun HomeScreen(
     state: UiState,
     onQueryChange: (String) -> Unit,
-    onSearch: () -> Unit,
     onNextPage: () -> Unit,
     onPreviousPage: () -> Unit,
     onPokemonClick: (Pokemon) -> Unit
@@ -172,13 +170,11 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(12.dp))
-            Button(
-                onClick = onSearch,
-                enabled = state.query.isNotBlank() && !state.isLoading,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Search")
-            }
+            Text(
+                text = "Searching as you type…",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
             if (state.isLoading) {
@@ -362,7 +358,6 @@ fun AppPreview() {
                 totalCount = 0
             ),
             onQueryChange = {},
-            onSearch = {},
             onNextPage = {},
             onPreviousPage = {},
             onPokemonClick = {}

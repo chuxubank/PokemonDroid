@@ -7,10 +7,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +21,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -251,9 +253,8 @@ fun SpeciesList(
             stickyHeader(key = "header-${species.id}") {
                 SpeciesHeader(species = species)
             }
-            items(species.pokemons, key = { it.id }) { pokemon ->
-                PokemonRow(
-                    pokemon = pokemon,
+            item(key = "chips-${species.id}") {
+                PokemonChips(
                     species = species,
                     onPokemonClick = onPokemonClick
                 )
@@ -297,30 +298,51 @@ fun SpeciesHeader(species: PokemonSpecies) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PokemonRow(
-    pokemon: Pokemon,
+fun PokemonChips(
     species: PokemonSpecies,
     onPokemonClick: (Pokemon) -> Unit
 ) {
     val background = colorForPokemonColorName(species.colorName)
     val textColor = readableTextColor(background)
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(background)
-            .clickable { onPokemonClick(pokemon) }
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        Text(
-            text = pokemon.name,
-            style = MaterialTheme.typography.bodyMedium,
-            color = textColor,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        if (species.pokemons.isEmpty()) {
+            Text(
+                text = "No Pokémon listed.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = textColor
+            )
+        } else {
+            FlowRow(
+                maxItemsInEachRow = 3,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                species.pokemons.forEach { pokemon ->
+                    AssistChip(
+                        onClick = { onPokemonClick(pokemon) },
+                        label = {
+                            Text(
+                                text = pokemon.name,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = background,
+                            labelColor = textColor
+                        )
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -366,7 +388,7 @@ fun DetailScreen(navController: NavController, pokemon: Pokemon?) {
             } else {
                 pokemon.abilities.forEach { ability ->
                     Text(
-                        text = ability.replaceFirstChar { it.uppercase() },
+                        text = ability,
                         style = MaterialTheme.typography.bodyLarge
                     )
                     Spacer(modifier = Modifier.height(4.dp))

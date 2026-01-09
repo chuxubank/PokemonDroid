@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,13 +18,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -206,17 +205,11 @@ fun HomeScreen(
                     )
                 }
 
-                LazyColumn(
-                    modifier = Modifier.weight(1f, fill = true)
-                ) {
-                    items(state.species, key = { it.id }) { species ->
-                        SpeciesCard(
-                            species = species,
-                            onPokemonClick = onPokemonClick
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                }
+                SpeciesList(
+                    speciesList = state.species,
+                    modifier = Modifier.weight(1f, fill = true),
+                    onPokemonClick = onPokemonClick
+                )
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -246,20 +239,43 @@ fun HomeScreen(
 }
 
 @Composable
-fun SpeciesCard(
-    species: PokemonSpecies,
+@OptIn(ExperimentalFoundationApi::class)
+fun SpeciesList(
+    speciesList: List<PokemonSpecies>,
+    modifier: Modifier = Modifier,
     onPokemonClick: (Pokemon) -> Unit
 ) {
+    LazyColumn(modifier = modifier) {
+        speciesList.forEach { species ->
+            stickyHeader(key = "header-${species.id}") {
+                SpeciesHeader(species = species)
+            }
+            items(species.pokemons, key = { it.id }) { pokemon ->
+                PokemonRow(
+                    pokemon = pokemon,
+                    species = species,
+                    onPokemonClick = onPokemonClick
+                )
+            }
+            item(key = "spacer-${species.id}") {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun SpeciesHeader(species: PokemonSpecies) {
     val background = colorForPokemonColorName(species.colorName)
     val textColor = readableTextColor(background)
 
-    Card(
-        colors = CardDefaults.cardColors(containerColor = background),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(background)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column {
             Text(
                 text = species.name.replaceFirstChar { it.uppercase() },
                 style = MaterialTheme.typography.titleMedium,
@@ -271,27 +287,34 @@ fun SpeciesCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = textColor.copy(alpha = 0.9f)
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "Pokémon",
-                style = MaterialTheme.typography.labelLarge,
-                color = textColor
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            species.pokemons.forEach { pokemon ->
-                Text(
-                    text = pokemon.name.replaceFirstChar { it.uppercase() },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = textColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onPokemonClick(pokemon) }
-                        .padding(vertical = 6.dp)
-                )
-            }
         }
+    }
+}
+
+@Composable
+fun PokemonRow(
+    pokemon: Pokemon,
+    species: PokemonSpecies,
+    onPokemonClick: (Pokemon) -> Unit
+) {
+    val background = colorForPokemonColorName(species.colorName)
+    val textColor = readableTextColor(background)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(background)
+            .clickable { onPokemonClick(pokemon) }
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = pokemon.name.replaceFirstChar { it.uppercase() },
+            style = MaterialTheme.typography.bodyMedium,
+            color = textColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -347,14 +370,44 @@ fun DetailScreen(navController: NavController, pokemon: Pokemon?) {
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun AppPreview() {
+fun AppPreviewEmpty() {
     PokémonDroidTheme {
         HomeScreen(
             state = UiState(
                 query = "pika",
                 species = emptyList(),
+                totalCount = 0
+            ),
+            onQueryChange = {},
+            onNextPage = {},
+            onPreviousPage = {},
+            onPokemonClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun AppPreview() {
+    PokémonDroidTheme {
+        HomeScreen(
+            state = UiState(
+                query = "chu",
+                species = listOf(
+                    PokemonSpecies(
+                        1, "Pikachu", 40, "yellow", listOf(
+                            Pokemon(1, "pikachu", listOf("Lightning")),
+                            Pokemon(2, "pikachu-rock-star", listOf("Lightning-rod"))
+                        )
+                    ),
+                    PokemonSpecies(
+                        2, "Smoochum", 45, "pink", listOf(
+                            Pokemon(2, "Smoochum", listOf("Psychic"))
+                        )
+                    )
+                ),
                 totalCount = 0
             ),
             onQueryChange = {},

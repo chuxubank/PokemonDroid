@@ -1,4 +1,4 @@
-package top.chuxubank.pokemondroid.data
+package top.chuxubank.pokemondroid.data.remote
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -7,14 +7,15 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-import top.chuxubank.pokemondroid.model.Pokemon
-import top.chuxubank.pokemondroid.model.PokemonSpecies
-import top.chuxubank.pokemondroid.model.SearchResult
+import top.chuxubank.pokemondroid.domain.model.Pokemon
+import top.chuxubank.pokemondroid.domain.model.PokemonSpecies
+import top.chuxubank.pokemondroid.domain.model.SearchResult
 import java.io.IOException
+import javax.inject.Inject
 
-object PokeApiClient {
-    private const val BASE_URL = "https://beta.pokeapi.co/graphql/v1beta"
-    private val client = OkHttpClient()
+class PokeApiClient @Inject constructor(
+    private val client: OkHttpClient
+) {
     private val mediaType = "application/json; charset=utf-8".toMediaType()
 
     private val query = """
@@ -130,5 +131,9 @@ object PokeApiClient {
                 SearchResult(totalCount = count, species = speciesList)
             }
         }
+    }
+
+    companion object {
+        private const val BASE_URL = "https://beta.pokeapi.co/graphql/v1beta"
     }
 }

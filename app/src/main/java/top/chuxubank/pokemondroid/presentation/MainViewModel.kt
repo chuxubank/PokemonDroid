@@ -1,21 +1,41 @@
-package top.chuxubank.pokemondroid
+package top.chuxubank.pokemondroid.presentation
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import top.chuxubank.pokemondroid.data.PokeApiClient
-import top.chuxubank.pokemondroid.model.Pokemon
-import top.chuxubank.pokemondroid.model.PokemonSpecies
+import top.chuxubank.pokemondroid.domain.model.Pokemon
+import top.chuxubank.pokemondroid.domain.model.PokemonSpecies
+import top.chuxubank.pokemondroid.domain.usecase.GetFirstLaunchUseCase
+import top.chuxubank.pokemondroid.domain.usecase.SearchPokemonSpeciesUseCase
+import top.chuxubank.pokemondroid.domain.usecase.SetFirstLaunchCompleteUseCase
+import javax.inject.Inject
 
-class MainViewModel : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val searchPokemonSpeciesUseCase: SearchPokemonSpeciesUseCase,
+    private val getFirstLaunchUseCase: GetFirstLaunchUseCase,
+    private val setFirstLaunchCompleteUseCase: SetFirstLaunchCompleteUseCase
+) : ViewModel() {
     var uiState by mutableStateOf(UiState())
         private set
     private var searchJob: Job? = null
+    val isFirstLaunch: StateFlow<Boolean> = getFirstLaunchUseCase()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    fun completeFirstLaunch() {
+        viewModelScope.launch {
+            setFirstLaunchCompleteUseCase()
+        }
+    }
 
     fun onQueryChange(value: String) {
         uiState = uiState.copy(query = value)
@@ -63,7 +83,11 @@ class MainViewModel : ViewModel() {
             uiState = uiState.copy(isLoading = true, errorMessage = null)
             try {
                 val offset = page * uiState.pageSize
-                val result = PokeApiClient.searchSpecies(uiState.query, uiState.pageSize, offset)
+                val result = searchPokemonSpeciesUseCase(
+                    uiState.query,
+                    uiState.pageSize,
+                    offset
+                )
                 uiState = uiState.copy(
                     isLoading = false,
                     species = result.species,

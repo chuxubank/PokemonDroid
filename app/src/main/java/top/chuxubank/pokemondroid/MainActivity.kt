@@ -1,6 +1,5 @@
 package top.chuxubank.pokemondroid
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,25 +41,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.preferencesDataStore
-import top.chuxubank.pokemondroid.model.Pokemon
-import top.chuxubank.pokemondroid.model.PokemonSpecies
+import dagger.hilt.android.AndroidEntryPoint
+import top.chuxubank.pokemondroid.domain.model.Pokemon
+import top.chuxubank.pokemondroid.domain.model.PokemonSpecies
+import top.chuxubank.pokemondroid.presentation.MainViewModel
 import top.chuxubank.pokemondroid.ui.theme.PokémonDroidTheme
 import top.chuxubank.pokemondroid.ui.colorForPokemonColorName
 import top.chuxubank.pokemondroid.ui.readableTextColor
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
+import androidx.hilt.navigation.compose.hiltViewModel
+import top.chuxubank.pokemondroid.presentation.UiState
 
-private val Context.dataStore by preferencesDataStore(name = "pokemon_prefs")
-private val FIRST_LAUNCH_KEY = booleanPreferencesKey("first_launch")
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,22 +71,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PokeApp() {
     val navController = rememberNavController()
-    val viewModel: MainViewModel = viewModel()
-
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val scope = rememberCoroutineScope()
-    val showSplash by context.dataStore.data
-        .map { prefs -> prefs[FIRST_LAUNCH_KEY] ?: true }
-        .collectAsState(initial = true)
+    val viewModel: MainViewModel = hiltViewModel()
+    val showSplash by viewModel.isFirstLaunch.collectAsState()
 
     if (showSplash) {
         SplashScreen(
             onContinue = {
-                scope.launch {
-                    context.dataStore.edit { prefs ->
-                        prefs[FIRST_LAUNCH_KEY] = false
-                    }
-                }
+                viewModel.completeFirstLaunch()
             }
         )
         return

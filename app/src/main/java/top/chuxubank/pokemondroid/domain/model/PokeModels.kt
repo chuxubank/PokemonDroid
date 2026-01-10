@@ -1,4 +1,4 @@
-package top.chuxubank.pokemondroid.model
+package top.chuxubank.pokemondroid.domain.model
 
 data class SearchResult(
     val totalCount: Int,

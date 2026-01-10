@@ -32,10 +32,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,12 +48,19 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStore
 import top.chuxubank.pokemondroid.model.Pokemon
 import top.chuxubank.pokemondroid.model.PokemonSpecies
 import top.chuxubank.pokemondroid.ui.theme.PokémonDroidTheme
 import top.chuxubank.pokemondroid.ui.colorForPokemonColorName
 import top.chuxubank.pokemondroid.ui.readableTextColor
-import androidx.core.content.edit
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+
+private val Context.dataStore by preferencesDataStore(name = "pokemon_prefs")
+private val FIRST_LAUNCH_KEY = booleanPreferencesKey("first_launch")
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,14 +80,19 @@ fun PokeApp() {
     val viewModel: MainViewModel = viewModel()
 
     val context = androidx.compose.ui.platform.LocalContext.current
-    val prefs = remember { context.getSharedPreferences("pokemon_prefs", Context.MODE_PRIVATE) }
-    var showSplash by rememberSaveable { mutableStateOf(prefs.getBoolean("first_launch", true)) }
+    val scope = rememberCoroutineScope()
+    val showSplash by context.dataStore.data
+        .map { prefs -> prefs[FIRST_LAUNCH_KEY] ?: true }
+        .collectAsState(initial = true)
 
     if (showSplash) {
         SplashScreen(
             onContinue = {
-                prefs.edit { putBoolean("first_launch", false) }
-                showSplash = false
+                scope.launch {
+                    context.dataStore.edit { prefs ->
+                        prefs[FIRST_LAUNCH_KEY] = false
+                    }
+                }
             }
         )
         return

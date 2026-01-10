@@ -6,9 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import top.chuxubank.pokemondroid.data.local.FirstLaunchDataStore
 import top.chuxubank.pokemondroid.data.repository.PokemonRepositoryImpl
-import top.chuxubank.pokemondroid.domain.repository.FirstLaunchRepository
 import top.chuxubank.pokemondroid.domain.repository.PokemonRepository
 import javax.inject.Singleton
 
@@ -29,9 +27,4 @@ abstract class AppBindings {
         impl: PokemonRepositoryImpl
     ): PokemonRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindFirstLaunchRepository(
-        impl: FirstLaunchDataStore
-    ): FirstLaunchRepository
 }

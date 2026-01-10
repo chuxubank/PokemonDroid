@@ -12,28 +12,26 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import top.chuxubank.pokemondroid.data.local.PokeAppDataStore
 import top.chuxubank.pokemondroid.domain.model.Pokemon
 import top.chuxubank.pokemondroid.domain.model.PokemonSpecies
-import top.chuxubank.pokemondroid.domain.usecase.GetFirstLaunchUseCase
 import top.chuxubank.pokemondroid.domain.usecase.SearchPokemonSpeciesUseCase
-import top.chuxubank.pokemondroid.domain.usecase.SetFirstLaunchCompleteUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val searchPokemonSpeciesUseCase: SearchPokemonSpeciesUseCase,
-    private val getFirstLaunchUseCase: GetFirstLaunchUseCase,
-    private val setFirstLaunchCompleteUseCase: SetFirstLaunchCompleteUseCase
+    private val pokeAppDataStore: PokeAppDataStore
 ) : ViewModel() {
     var uiState by mutableStateOf(UiState())
         private set
     private var searchJob: Job? = null
-    val isFirstLaunch: StateFlow<Boolean> = getFirstLaunchUseCase()
+    val isFirstLaunch: StateFlow<Boolean> = pokeAppDataStore.isFirstLaunch
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
     fun completeFirstLaunch() {
         viewModelScope.launch {
-            setFirstLaunchCompleteUseCase()
+            pokeAppDataStore.setFirstLaunchCompleted()
         }
     }
 

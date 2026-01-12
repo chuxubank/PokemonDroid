@@ -27,7 +27,7 @@ class MainViewModel @Inject constructor(
         private set
     private var searchJob: Job? = null
     val isFirstLaunch: StateFlow<Boolean> = pokeAppDataStore.isFirstLaunch
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     fun completeFirstLaunch() {
         viewModelScope.launch {
@@ -96,7 +96,7 @@ class MainViewModel @Inject constructor(
             } catch (exception: Exception) {
                 uiState = uiState.copy(
                     isLoading = false,
-                    errorMessage = "Failed to load Pokémon data. Please try again.",
+                    errorMessage = "Failed to load Pokémon data. Please try again. Error: ${exception.message}",
                     species = emptyList(),
                     totalCount = 0,
                     currentPage = 0

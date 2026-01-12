@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.apollo)
 }
 
 android {
@@ -66,6 +67,7 @@ dependencies {
     ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.3.0") // Can be remove after https://github.com/google/dagger/issues/5001 fixed
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.okhttp)
+    implementation(libs.apollo.runtime)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -73,4 +75,10 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+apollo {
+    service("pokeapi") {
+        packageName.set("top.chuxubank.pokemondroid.graphql")
+    }
 }

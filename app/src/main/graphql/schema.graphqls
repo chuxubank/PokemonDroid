@@ -1,0 +1,58 @@
+schema {
+  query: query_root
+}
+
+type query_root {
+  pokemon_v2_pokemonspecies(
+    where: pokemon_v2_pokemonspecies_bool_exp
+    limit: Int
+    offset: Int
+  ): [pokemon_v2_pokemonspecies!]!
+  pokemon_v2_pokemonspecies_aggregate(
+    where: pokemon_v2_pokemonspecies_bool_exp
+  ): pokemon_v2_pokemonspecies_aggregate!
+}
+
+input pokemon_v2_pokemonspecies_bool_exp {
+  name: String_comparison_exp
+}
+
+input String_comparison_exp {
+  _ilike: String
+}
+
+type pokemon_v2_pokemonspecies {
+  id: Int!
+  name: String!
+  capture_rate: Int!
+  pokemon_v2_pokemoncolor: pokemon_v2_pokemoncolor
+  pokemon_v2_pokemons: [pokemon_v2_pokemon!]!
+}
+
+type pokemon_v2_pokemoncolor {
+  id: Int!
+  name: String!
+}
+
+type pokemon_v2_pokemon {
+  id: Int!
+  name: String!
+  pokemon_v2_pokemonabilities: [pokemon_v2_pokemonability!]!
+}
+
+type pokemon_v2_pokemonability {
+  id: Int!
+  pokemon_v2_ability: pokemon_v2_ability
+}
+
+type pokemon_v2_ability {
+  name: String!
+}
+
+type pokemon_v2_pokemonspecies_aggregate {
+  aggregate: pokemon_v2_pokemonspecies_aggregate_fields!
+}
+
+type pokemon_v2_pokemonspecies_aggregate_fields {
+  count: Int!
+}
